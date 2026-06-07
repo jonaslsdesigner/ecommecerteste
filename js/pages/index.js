@@ -1,0 +1,154 @@
+function formatBlogDate(str) {
+  const d = new Date(str + 'T00:00:00')
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
+}
+
+function renderLatestBlogCard(post) {
+  return `
+  <article class="blog-card">
+    <a href="blog-post.html?id=${post.id}" class="blog-card__image-wrap" style="display:block;text-decoration:none">
+      <img class="blog-card__image" src="${post.image}" alt="${post.title}" loading="lazy">
+    </a>
+    <div class="blog-card__body">
+      <div class="blog-card__meta">
+        <span class="blog-card__category">${post.category}</span>
+        <span class="blog-card__date">${formatBlogDate(post.date)}</span>
+      </div>
+      <h3 class="blog-card__title">
+        <a href="blog-post.html?id=${post.id}" style="color:inherit;text-decoration:none">${post.title}</a>
+      </h3>
+      <p class="blog-card__excerpt">${post.excerpt}</p>
+      <a href="blog-post.html?id=${post.id}" class="blog-card__link">Leia Mais
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+    </div>
+  </article>`
+}
+
+function renderStars(rating) {
+  return Array.from({ length: 5 }, (_, i) =>
+    `<svg class="${i < Math.round(rating) ? 'filled' : ''}" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
+  ).join('')
+}
+
+function renderProductCard(p) {
+  const salePct = p.comparePrice ? Math.round((1 - p.price / p.comparePrice) * 100) : 0
+  return `
+  <article class="product-card" data-id="${p.id}">
+    <div class="product-card__image-wrap">
+      <a href="product.html?id=${p.id}"><img src="${p.image}" alt="${p.name}" loading="lazy"></a>
+      <div class="product-card__badges">
+        ${p.isNew ? '<span class="badge badge--new">Novo</span>' : ''}
+        ${p.isSale ? `<span class="badge badge--sale">-${salePct}%</span>` : ''}
+      </div>
+      <div class="product-card__actions">
+        <button class="product-card__action-btn js-wishlist${Wishlist.has(p.id) ? ' is-wishlisted' : ''}" data-id="${p.id}" title="Adicionar à lista de desejos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <button class="product-card__action-btn js-quickview" data-id="${p.id}" title="Ver rápido">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <button class="product-card__quickadd js-addcart" data-id="${p.id}">Adicionar ao Carrinho</button>
+    </div>
+    <div class="product-card__body">
+      <p class="product-card__category">${p.category}</p>
+      <a href="product.html?id=${p.id}" class="product-card__name">${p.name}</a>
+      <div class="product-card__rating">
+        <div class="stars">${renderStars(p.rating)}</div>
+        <span class="product-card__rating-count">(${p.reviews})</span>
+      </div>
+      <div class="product-card__pricing">
+        <span class="product-card__price">${Formatter.price(p.price)}</span>
+        ${p.comparePrice ? `<span class="product-card__compare">${Formatter.price(p.comparePrice)}</span>` : ''}
+      </div>
+    </div>
+  </article>`
+}
+
+function renderMiniItem(p) {
+  return `
+  <a href="product.html?id=${p.id}" class="mini-item">
+    <img class="mini-item__image" src="${p.image}" alt="${p.name}" loading="lazy">
+    <div class="mini-item__content">
+      <p class="mini-item__name">${p.name}</p>
+      <div class="mini-item__rating"><div class="stars">${renderStars(p.rating)}</div></div>
+      <div>
+        <span class="mini-item__price">${Formatter.price(p.price)}</span>
+        ${p.comparePrice ? `<span class="mini-item__compare">${Formatter.price(p.comparePrice)}</span>` : ''}
+      </div>
+    </div>
+  </a>`
+}
+
+function bindCardEvents() {
+  document.querySelectorAll('.js-addcart').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault()
+      const id = parseInt(btn.dataset.id)
+      const product = MOCK_PRODUCTS.find(p => p.id === id)
+      if (!product) return
+      Cart.add(product)
+      Header.updateCart()
+      Toast.show('Adicionado ao carrinho!', product.name, 'success')
+    })
+  })
+  document.querySelectorAll('.js-quickview').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = parseInt(btn.dataset.id)
+      const product = MOCK_PRODUCTS.find(p => p.id === id)
+      if (product) Quickview.open(product)
+    })
+  })
+  document.querySelectorAll('.js-wishlist').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = parseInt(btn.dataset.id)
+      const added = Wishlist.toggle(id)
+      btn.classList.toggle('is-wishlisted', added)
+      Toast.show(added ? 'Adicionado aos favoritos' : 'Removido dos favoritos', '', 'info')
+    })
+  })
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  Toast.init()
+
+  // Render tabs
+  const newArrivals  = MOCK_PRODUCTS.filter(p => p.isNew)
+  const bestSellers  = MOCK_PRODUCTS.slice(4, 8)
+  const saleItems    = MOCK_PRODUCTS.filter(p => p.isSale)
+
+  const tabGrids = {
+    'tab-new':  newArrivals,
+    'tab-best': bestSellers,
+    'tab-sale': saleItems,
+  }
+  Object.entries(tabGrids).forEach(([id, products]) => {
+    const grid = document.getElementById(id)
+    if (grid) grid.innerHTML = products.map(renderProductCard).join('')
+  })
+
+  // Mini lists
+  const miniOffer   = document.getElementById('mini-offer')
+  const miniNew     = document.getElementById('mini-new')
+  const miniBest    = document.getElementById('mini-best')
+  if (miniOffer) miniOffer.innerHTML = MOCK_PRODUCTS.filter(p => p.isSale).slice(0, 4).map(renderMiniItem).join('')
+  if (miniNew)   miniNew.innerHTML   = MOCK_PRODUCTS.filter(p => p.isNew).slice(0, 4).map(renderMiniItem).join('')
+  if (miniBest)  miniBest.innerHTML  = MOCK_PRODUCTS.slice(0, 4).map(renderMiniItem).join('')
+
+  // Daily deals grids
+  const dealsGrid = document.getElementById('deals-grid')
+  const dealsNew  = document.getElementById('deals-new')
+  const dealsSale = document.getElementById('deals-sale')
+  if (dealsGrid) dealsGrid.innerHTML = MOCK_PRODUCTS.slice(0, 4).map(renderProductCard).join('')
+  if (dealsNew)  dealsNew.innerHTML  = MOCK_PRODUCTS.filter(p => p.isNew).slice(0, 4).map(renderProductCard).join('')
+  if (dealsSale) dealsSale.innerHTML = MOCK_PRODUCTS.filter(p => p.isSale).slice(0, 4).map(renderProductCard).join('')
+
+  // Latest blog posts (always in sync with MOCK_BLOG_POSTS)
+  const blogLatestGrid = document.getElementById('blog-latest-grid')
+  if (blogLatestGrid) {
+    blogLatestGrid.innerHTML = MOCK_BLOG_POSTS.slice(0, 3).map(renderLatestBlogCard).join('')
+  }
+
+  bindCardEvents()
+})

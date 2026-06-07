@@ -1,0 +1,155 @@
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+.auth-page {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.auth-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(16px, 3vh, 40px) var(--container-pad);
+  overflow-y: auto;
+}
+.auth-panel--image {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-bg-dark);
+}
+.auth-panel__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.6;
+}
+.auth-panel__quote {
+  position: relative;
+  color: var(--color-white);
+  text-align: center;
+  max-width: 420px;
+}
+.auth-panel__quote-mark {
+  font-family: var(--font-heading);
+  font-size: clamp(3rem, 6vh, 6rem);
+  line-height: 0.5;
+  opacity: .2;
+  margin-bottom: var(--space-md);
+}
+.auth-panel__quote-text {
+  font-family: var(--font-heading);
+  font-size: clamp(1rem, 2vh, 1.6rem);
+  font-style: italic;
+  line-height: 1.4;
+  margin-bottom: var(--space-lg);
+  opacity: .85;
+}
+.auth-panel__quote-author {
+  font-size: var(--font-size-sm);
+  opacity: .5;
+  letter-spacing: 0.08em;
+}
+
+.auth-box { width: 100%; max-width: 440px; }
+.auth-box__logo {
+  font-family: var(--font-heading);
+  font-size: clamp(1.3rem, 2.5vh, 1.8rem);
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: clamp(12px, 2vh, 28px);
+  display: inline-block;
+}
+.auth-box__title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.3rem, 3vh, 2rem);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.auth-box__subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-bottom: clamp(10px, 1.5vh, 20px);
+}
+
+/* Auth tabs */
+.auth-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--color-border);
+  margin-bottom: clamp(12px, 2vh, 28px);
+}
+.auth-tab-btn {
+  flex: 1;
+  padding: clamp(8px, 1.2vh, 12px);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all var(--transition-fast);
+}
+.auth-tab-btn.is-active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+.auth-panel-form { display: none; }
+.auth-panel-form.is-active { display: block; }
+
+.auth-form { display: flex; flex-direction: column; gap: clamp(8px, 1.2vh, 14px); }
+.auth-form__group { display: flex; flex-direction: column; gap: 4px; }
+.auth-form__label { font-size: var(--font-size-sm); font-weight: 500; }
+.auth-form__forgot {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-align: right;
+  display: block;
+  margin-top: 2px;
+  transition: color var(--transition-fast);
+}
+.auth-form__forgot:hover { color: var(--color-primary); }
+.auth-form__row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); }
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  color: var(--color-text-light);
+  font-size: var(--font-size-xs);
+  margin-block: clamp(8px, 1.2vh, 16px);
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+.social-login { display: flex; gap: var(--space-md); }
+.social-btn {
+  flex: 1;
+  padding: clamp(7px, 1vh, 10px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  transition: background var(--transition-fast);
+}
+.social-btn:hover { background: var(--color-bg-alt); }
+.social-btn svg { width: 18px; height: 18px; }
+
+/* Compact inputs and buttons inside auth only */
+.auth-box .form-control { padding: 8px 12px; }
+.auth-box .btn--lg { padding: 11px 24px; font-size: var(--font-size-sm); }
+
+@media (max-width: 768px) {
+  .auth-page { grid-template-columns: 1fr; height: auto; min-height: 100vh; }
+  .auth-panel--image { display: none; }
+  .auth-panel { padding: var(--space-xl) var(--space-lg); overflow-y: visible; }
+  html, body { overflow: auto; }
+}
