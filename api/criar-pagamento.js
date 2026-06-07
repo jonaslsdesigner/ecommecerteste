@@ -1,10 +1,20 @@
 module.exports = async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end()
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
+
   try {
     const { items, payer, coupon } = req.body
     let total = items.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0)
+
     if (coupon) {
       const couponRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/coupons?code=eq.${coupon}&active=eq.true`, {
         headers: {
@@ -21,6 +31,7 @@ module.exports = async function handler(req, res) {
         total = Math.max(total - discount, 1)
       }
     }
+
     const mpRes = await fetch('https://api.mercadopago.com/checkout/preferences', {
       method: 'POST',
       headers: {
@@ -45,8 +56,10 @@ module.exports = async function handler(req, res) {
         external_reference: `order_${Date.now()}`
       })
     })
+
     const preference = await mpRes.json()
-    if (!preference.id) throw new Error('Erro: ' + JSON.stringify(preference))
+    if (!preference.id) throw new Error('Erro MP: ' + JSON.stringify(preference))
+
     return res.status(200).json({
       preference_id: preference.id,
       init_point: preference.init_point,
