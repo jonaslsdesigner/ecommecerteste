@@ -9,10 +9,8 @@ module.exports = async function handler(req, res) {
 
   try {
     const { items, payer } = req.body;
-
     const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
     const preference = new Preference(client);
-
     const result = await preference.create({
       body: {
         items: items.map(item => ({
@@ -30,7 +28,6 @@ module.exports = async function handler(req, res) {
         auto_return: 'approved'
       }
     });
-
     return res.status(200).json({
       preference_id: result.id,
       init_point: result.init_point,
