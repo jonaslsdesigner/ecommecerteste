@@ -102,9 +102,16 @@
             <span class="order-item__price">R$129,00</span>
           </div>
         </div>
+        <div class="order-coupon">
+          <div class="order-coupon__field">
+            <input type="text" id="coupon-input" class="form-control" placeholder="Código do cupom">
+            <button class="btn btn--outline btn--sm" id="apply-coupon" type="button">Aplicar</button>
+          </div>
+        </div>
         <div class="order-totals">
           <div class="order-totals__row"><span>Subtotal</span><span id="order-subtotal">R$129,00</span></div>
           <div class="order-totals__row"><span>Frete</span><span id="order-shipping">Grátis</span></div>
+          <div class="order-totals__row" id="order-discount-row" style="display:none"><span>Cupom</span><span id="order-discount"></span></div>
           <div class="order-totals__row is-total"><span>Total</span><span id="order-total">R$129,00</span></div>
         </div>
         <div class="checkout-submit">
