@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     section.innerHTML = items.map(item => `
     <div class="cart-item" data-id="${item.id}" data-size="${item.size}">
       <div class="cart-item__product">
-        <a href="product.html?id=${item.id}"><img class="cart-item__image" src="${item.image}" alt="${item.name}"></a>
+        <a href="product.html?id=${item.id}"><img class="cart-item__image" src="${MOCK_PRODUCTS.find(p => p.id === item.id)?.image || item.image}" alt="${item.name}"></a>
         <div>
           <a href="product.html?id=${item.id}" class="cart-item__name">${item.name}</a>
           <p class="cart-item__variant">Tamanho: ${item.size}</p>
