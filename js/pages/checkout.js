@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     orderItems.innerHTML = items.map(item => `
     <div class="order-item">
       <div class="order-item__image-wrap">
-        <img class="order-item__image" src="${item.image}" alt="${item.name}">
+        <img class="order-item__image" src="${MOCK_PRODUCTS.find(p => p.id === item.id)?.image || item.image}" alt="${item.name}">
         <span class="order-item__qty-badge">${item.qty}</span>
       </div>
       <div class="order-item__details">

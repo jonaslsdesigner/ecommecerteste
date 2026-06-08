@@ -1,16 +1,16 @@
-const MOCK_PRODUCTS = [
-  { id: 1,  name: 'Lorem Ipsum Coat',       slug: 'lorem-ipsum-coat',      price: 129.00, comparePrice: 179.00, rating: 4.5, reviews: 24, category: 'Coats',       isNew: true,  isSale: true,  image: 'assets/images/roupas/calças/Calca-Zara-CAPA.webp' },
-  { id: 2,  name: 'Dolor Sit Dress',        slug: 'dolor-sit-dress',       price: 89.00,  comparePrice: null,   rating: 4.0, reviews: 18, category: 'Dresses',     isNew: true,  isSale: false, image: 'assets/images/roupas/conjuntos/Conjunto-Juliana-CAPA-VARIACAO-BEGE-COM-BRANCO-819x1024.webp' },
-  { id: 3,  name: 'Amet Consectetur Top',   slug: 'amet-consectetur-top',  price: 49.00,  comparePrice: null,   rating: 4.2, reviews: 31, category: 'Tops',        isNew: true,  isSale: false, image: 'assets/images/roupas/conjuntos/15390907282-blusa-social-tecido-alfaiataria-capa-variacao-azul-1.webp' },
-  { id: 4,  name: 'Adipiscing Elit Pants',  slug: 'adipiscing-elit-pants', price: 74.00,  comparePrice: 99.00,  rating: 3.8, reviews: 12, category: 'Bottoms',     isNew: false, isSale: true,  image: 'assets/images/roupas/calças/Calca-Lippo-CAPA.webp' },
-  { id: 5,  name: 'Sed Do Jacket',          slug: 'sed-do-jacket',         price: 159.00, comparePrice: 220.00, rating: 4.7, reviews: 45, category: 'Jackets',     isNew: false, isSale: true,  image: 'assets/images/roupas/conjuntos/img_4684-1152x1536.webp' },
-  { id: 6,  name: 'Eiusmod Tempor Skirt',   slug: 'eiusmod-tempor-skirt',  price: 64.00,  comparePrice: null,   rating: 4.3, reviews: 22, category: 'Bottoms',     isNew: false, isSale: false, image: 'assets/images/roupas/calças/Calca-Jeans-com-Lycra-CAPA.webp' },
-  { id: 7,  name: 'Incididunt Labore Bag',  slug: 'incididunt-labore-bag', price: 110.00, comparePrice: 149.00, rating: 4.6, reviews: 37, category: 'Bags',        isNew: false, isSale: true,  image: 'assets/images/roupas/conjuntos/img_4694-1152x1536.webp' },
-  { id: 8,  name: 'Dolore Magna Blouse',    slug: 'dolore-magna-blouse',   price: 55.00,  comparePrice: null,   rating: 4.1, reviews: 19, category: 'Tops',        isNew: true,  isSale: false, image: 'assets/images/roupas/shorts/Short-Social-Alfaiataria-100-Poliester-VARIACAO-BRANCO-CAPA.webp' },
-  { id: 9,  name: 'Aliqua Enim Watch',      slug: 'aliqua-enim-watch',     price: 199.00, comparePrice: 279.00, rating: 4.8, reviews: 58, category: 'Accessories', isNew: false, isSale: true,  image: 'assets/images/roupas/camisetas/img_8539-1174x1536.webp' },
-  { id: 10, name: 'Quis Nostrud Sneakers',  slug: 'quis-nostrud-sneakers', price: 95.00,  comparePrice: null,   rating: 4.0, reviews: 14, category: 'Shoes',       isNew: true,  isSale: false, image: 'assets/images/roupas/camisetas/img_7019-scaled.webp' },
-  { id: 11, name: 'Exercitation Hat',       slug: 'exercitation-hat',      price: 35.00,  comparePrice: 49.00,  rating: 3.9, reviews: 8,  category: 'Accessories', isNew: false, isSale: true,  image: 'assets/images/roupas/conjuntos/673055068_18373458412206623_350780375131887092_n.jpg' },
-  { id: 12, name: 'Ullamco Laboris Coat',   slug: 'ullamco-laboris-coat',  price: 145.00, comparePrice: null,   rating: 4.4, reviews: 29, category: 'Coats',       isNew: true,  isSale: false, image: 'assets/images/roupas/calças/Calca-Lippo-EXTRA-01.webp' },
+﻿const MOCK_PRODUCTS = [
+  { id: 1,  name: 'Lorem Ipsum Coat',       slug: 'lorem-ipsum-coat',      price: 129.00, comparePrice: 179.00, rating: 4.5, reviews: 24, category: 'Coats',       isNew: true,  isSale: true,  image: 'IMAGEM ILUSTRATIV/PRODUTOS.png' },
+  { id: 2,  name: 'Dolor Sit Dress',        slug: 'dolor-sit-dress',       price: 89.00,  comparePrice: null,   rating: 4.0, reviews: 18, category: 'Dresses',     isNew: true,  isSale: false, image: 'IMAGEM ILUSTRATIV/PRODUTOS.png' },
+  { id: 3,  name: 'Amet Consectetur Top',   slug: 'amet-consectetur-top',  price: 49.00,  comparePrice: null,   rating: 4.2, reviews: 31, category: 'Tops',        isNew: true,  isSale: false, image: 'IMAGEM ILUSTRATIV/PRODUTOS.png' },
+  { id: 4,  name: 'Adipiscing Elit Pants',  slug: 'adipiscing-elit-pants', price: 74.00,  comparePrice: 99.00,  rating: 3.8, reviews: 12, category: 'Bottoms',     isNew: false, isSale: true,  image: 'IMAGEM ILUSTRATIV/PRODUTOS.png' },
+  { id: 5,  name: 'Sed Do Jacket',          slug: 'sed-do-jacket',         price: 159.00, comparePrice: 220.00, rating: 4.7, reviews: 45, category: 'Jackets',     isNew: false, isSale: true,  image: 'IMAGEM ILUSTRATIV/PRODUTOS.png' },
+  { id: 6,  name: 'Eiusmod Tempor Skirt',   slug: 'eiusmod-tempor-skirt',  price: 64.00,  comparePrice: null,   rating: 4.3, reviews: 22, category: 'Bottoms',     isNew: false, isSale: false, image: 'IMAGEM ILUSTRATIV/PRODUTOS.png' },
+  { id: 7,  name: 'Incididunt Labore Bag',  slug: 'incididunt-labore-bag', price: 110.00, comparePrice: 149.00, rating: 4.6, reviews: 37, category: 'Bags',        isNew: false, isSale: true,  image: 'IMAGEM ILUSTRATIV/PRODUTOS.png' },
+  { id: 8,  name: 'Dolore Magna Blouse',    slug: 'dolore-magna-blouse',   price: 55.00,  comparePrice: null,   rating: 4.1, reviews: 19, category: 'Tops',        isNew: true,  isSale: false, image: 'IMAGEM ILUSTRATIV/PRODUTOS.png' },
+  { id: 9,  name: 'Aliqua Enim Watch',      slug: 'aliqua-enim-watch',     price: 199.00, comparePrice: 279.00, rating: 4.8, reviews: 58, category: 'Accessories', isNew: false, isSale: true,  image: 'IMAGEM ILUSTRATIV/PRODUTOS.png' },
+  { id: 10, name: 'Quis Nostrud Sneakers',  slug: 'quis-nostrud-sneakers', price: 95.00,  comparePrice: null,   rating: 4.0, reviews: 14, category: 'Shoes',       isNew: true,  isSale: false, image: 'IMAGEM ILUSTRATIV/PRODUTOS.png' },
+  { id: 11, name: 'Exercitation Hat',       slug: 'exercitation-hat',      price: 35.00,  comparePrice: 49.00,  rating: 3.9, reviews: 8,  category: 'Accessories', isNew: false, isSale: true,  image: 'IMAGEM ILUSTRATIV/PRODUTOS.png' },
+  { id: 12, name: 'Ullamco Laboris Coat',   slug: 'ullamco-laboris-coat',  price: 145.00, comparePrice: null,   rating: 4.4, reviews: 29, category: 'Coats',       isNew: true,  isSale: false, image: 'IMAGEM ILUSTRATIV/PRODUTOS.png' },
 ]
 
 const MOCK_BLOG_POSTS = [
@@ -22,7 +22,7 @@ const MOCK_BLOG_POSTS = [
     excerpt: 'Os tons neutros dominam as passarelas desta temporada, trazendo uma harmonia visual única que permite combinações versáteis para o dia a dia.',
     date: '2024-01-15',
     author: 'Equipe Editorial',
-    image: 'assets/images/roupas/camisetas/707097764_18378458587206623_823134699278685089_n.jpg',
+    image: 'IMAGEM ILUSTRATIV/BANNERS BLOGS.png',
     content: `
       <p>As coleções de inverno chegam com propostas arrojadas e sofisticadas. Desta vez, os tons neutros dominam as passarelas, trazendo uma harmonia visual única que permite combinações versáteis para o dia a dia. Cada peça foi pensada para durar além da temporada, unindo qualidade e estilo.</p>
       <p>A tendência aposta em texturas diferenciadas: lãs, tweed e veludo ganham destaque nas peças da temporada. O importante é criar looks que equilibrem conforto e elegância, sem abrir mão do estilo pessoal. Aposte em camadas para garantir aquele visual sofisticado mesmo nos dias mais frios.</p>
@@ -43,7 +43,7 @@ const MOCK_BLOG_POSTS = [
     excerpt: 'Descubra como construir um guarda-roupa com apenas 30 peças essenciais que geram mais de 100 looks diferentes para o seu dia a dia.',
     date: '2024-01-22',
     author: 'Equipe Editorial',
-    image: 'assets/images/roupas/camisetas/708004566_18378165349206623_4414557642087300925_n.jpg',
+    image: 'IMAGEM ILUSTRATIV/BANNERS BLOGS.png',
     content: `
       <p>Moda e estilo de vida sempre andaram juntos. A forma como nos vestimos reflete nossa personalidade, nossos valores e a maneira como enxergamos o mundo ao nosso redor. Mais do que seguir tendências, trata-se de encontrar o que nos faz sentir bem e expressar quem somos de forma autêntica.</p>
       <p>Ao longo dos anos, meu guarda-roupa foi passando por transformações profundas. Saí do fast fashion para um consumo mais consciente, priorizando peças duráveis, de qualidade e com produção responsável. Essa mudança impactou não só meu estilo, mas minha rotina inteira.</p>
@@ -64,7 +64,7 @@ const MOCK_BLOG_POSTS = [
     excerpt: 'As grandes casas de moda lançaram suas apostas e as tendências apontam para uma fusão surpreendente entre o clássico e o contemporâneo.',
     date: '2024-01-29',
     author: 'Equipe Editorial',
-    image: 'assets/images/roupas/camisetas/714840271_18379656946206623_5686929293290379803_n.jpg',
+    image: 'IMAGEM ILUSTRATIV/BANNERS BLOGS.png',
     content: `
       <p>As grandes casas de moda lançaram suas apostas para a próxima temporada, e as tendências apontam para uma fusão surpreendente entre o clássico e o contemporâneo. Peças de alfaiataria ganham novos recortes, e as cores vibrantes voltam com força total às ruas e passarelas.</p>
       <p>O rosa millenial divide espaço com o verde-musgo e o laranja queimado — paletas que remetem tanto ao minimalismo escandinavo quanto à efervescência da cultura pop. A mistura de referências é o que torna essa temporada tão especial e plural para todos os estilos.</p>
