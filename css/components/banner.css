@@ -1,9 +1,8 @@
 /* ── Benefits strip ──────────────────────────────────── */
 .benefits {
-  border-top: 1px solid var(--color-border);
-  border-bottom: 1px solid var(--color-border);
   padding-block: var(--space-lg);
-  background: var(--color-bg);
+  background: var(--color-primary);
+  color: var(--color-text);
 }
 .benefits__grid {
   display: grid;
@@ -18,22 +17,22 @@
 .benefit__icon {
   width: 44px;
   height: 44px;
-  background: var(--color-bg-alt);
+  background: rgba(255,255,255,0.25);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: var(--color-primary);
+  color: #ffffff;
 }
 .benefit__icon svg { width: 22px; height: 22px; }
 .benefit__title {
   font-size: var(--font-size-sm);
   font-weight: 600;
-  color: var(--color-text);
+  color: #ffffff;
   margin-bottom: 2px;
 }
-.benefit__text { font-size: var(--font-size-xs); color: var(--color-text-muted); }
+.benefit__text { font-size: var(--font-size-xs); color: rgba(255,255,255,.75); }
 
 /* ── Double banners ──────────────────────────────────── */
 .banners-double {

@@ -48,7 +48,7 @@
   padding: 8px 12px;
   min-width: 56px;
   text-align: center;
-  color: var(--color-accent);
+  color: var(--color-primary);
 }
 .countdown__label {
   font-size: 10px;

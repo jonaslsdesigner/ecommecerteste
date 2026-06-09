@@ -78,7 +78,7 @@
   gap: var(--space-md);
   margin-bottom: var(--space-xl);
 }
-.product-info__price { font-size: 2rem; font-weight: 700; color: var(--color-accent); }
+.product-info__price { font-size: 2rem; font-weight: 700; color: var(--color-primary); }
 .product-info__compare {
   font-size: var(--font-size-lg);
   color: var(--color-text-muted);

@@ -93,7 +93,7 @@
   left: 0;
   right: 0;
   background: var(--color-primary);
-  color: var(--color-white);
+  color: var(--color-text);
   padding: 10px;
   text-align: center;
   font-size: var(--font-size-xs);
@@ -146,7 +146,7 @@
   align-items: center;
   gap: var(--space-sm);
 }
-.product-card__price { font-size: var(--font-size-base); font-weight: 700; color: var(--color-accent); }
+.product-card__price { font-size: var(--font-size-base); font-weight: 700; color: var(--color-primary); }
 .product-card__compare {
   font-size: var(--font-size-xs);
   color: var(--color-text-light);

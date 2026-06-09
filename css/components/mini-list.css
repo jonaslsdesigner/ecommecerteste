@@ -13,7 +13,7 @@
   font-size: var(--font-size-lg);
   font-weight: 700;
   padding-bottom: var(--space-md);
-  border-bottom: 2px solid var(--color-accent);
+  border-bottom: 2px solid var(--color-primary);
   margin-bottom: var(--space-lg);
   display: flex;
   align-items: center;
@@ -51,7 +51,7 @@
 }
 .mini-item:hover .mini-item__name { color: var(--color-primary); }
 .mini-item__rating { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
-.mini-item__price { font-size: var(--font-size-sm); font-weight: 700; color: var(--color-accent); }
+.mini-item__price { font-size: var(--font-size-sm); font-weight: 700; color: var(--color-primary); }
 .mini-item__compare {
   font-size: var(--font-size-xs);
   color: var(--color-text-light);

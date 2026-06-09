@@ -66,6 +66,31 @@ function renderProductCard(p) {
   </article>`
 }
 
+function renderFeaturedNew(p) {
+  const salePct = p.comparePrice ? Math.round((1 - p.price / p.comparePrice) * 100) : 0
+  return `
+  <div class="na-feature-img-wrap">
+    <img src="${p.image}" alt="${p.name}" loading="lazy">
+    <div class="na-feature-badges">
+      ${p.isNew ? '<span class="badge badge--new">Novo</span>' : ''}
+      ${p.isSale ? `<span class="badge badge--sale">-${salePct}%</span>` : ''}
+    </div>
+  </div>
+  <div class="na-feature-body">
+    <p class="na-feature-cat">${p.category}</p>
+    <h3 class="na-feature-name">${p.name}</h3>
+    <div class="na-feature-rating">
+      <div class="stars">${renderStars(p.rating)}</div>
+      <span>(${p.reviews})</span>
+    </div>
+    <div class="na-feature-pricing">
+      <span class="na-feature-price">${Formatter.price(p.price)}</span>
+      ${p.comparePrice ? `<span class="na-feature-compare">${Formatter.price(p.comparePrice)}</span>` : ''}
+    </div>
+    <a href="product.html?id=${p.id}" class="na-feature-btn">Ver Produto</a>
+  </div>`
+}
+
 function renderMiniItem(p) {
   return `
   <a href="product.html?id=${p.id}" class="mini-item">
@@ -113,20 +138,36 @@ function bindCardEvents() {
 document.addEventListener('DOMContentLoaded', () => {
   Toast.init()
 
-  // Render tabs
-  const newArrivals  = MOCK_PRODUCTS.filter(p => p.isNew)
-  const bestSellers  = MOCK_PRODUCTS.slice(4, 8)
-  const saleItems    = MOCK_PRODUCTS.filter(p => p.isSale)
+  // ── New Arrivals section ────────────────────────────────
+  const newArrivals = MOCK_PRODUCTS.filter(p => p.isNew)
+  const naFeatured  = newArrivals.reduce((a, b) => a.rating >= b.rating ? a : b)
+  const naFeatureEl = document.getElementById('na-feature')
+  const naGridEl    = document.getElementById('na-grid')
+  const naPills     = document.querySelectorAll('.na-pill')
 
-  const tabGrids = {
-    'tab-new':  newArrivals,
-    'tab-best': bestSellers,
-    'tab-sale': saleItems,
+  if (naFeatureEl) naFeatureEl.innerHTML = renderFeaturedNew(naFeatured)
+
+  function renderNewGrid(filter) {
+    if (!naGridEl) return
+    const pool = filter === 'all'
+      ? newArrivals.filter(p => p.id !== naFeatured.id)
+      : newArrivals.filter(p => p.category === filter && p.id !== naFeatured.id)
+    naGridEl.innerHTML = pool.slice(0, 4).map(renderProductCard).join('')
+    bindCardEvents()
   }
-  Object.entries(tabGrids).forEach(([id, products]) => {
-    const grid = document.getElementById(id)
-    if (grid) grid.innerHTML = products.map(renderProductCard).join('')
+  renderNewGrid('all')
+
+  naPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      naPills.forEach(p => p.classList.remove('is-active'))
+      pill.classList.add('is-active')
+      renderNewGrid(pill.dataset.filter)
+    })
   })
+
+  // ── Legacy data (bestSellers / saleItems for other sections) ──
+  const bestSellers = MOCK_PRODUCTS.slice(4, 8)
+  const saleItems   = MOCK_PRODUCTS.filter(p => p.isSale)
 
   // Mini lists
   const miniOffer   = document.getElementById('mini-offer')

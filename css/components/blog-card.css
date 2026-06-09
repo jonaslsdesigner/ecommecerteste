@@ -52,7 +52,7 @@
   font-family: var(--font-heading);
   font-size: var(--font-size-lg);
   font-weight: 700;
-  color: var(--color-text);
+  color: #b05570;
   margin-bottom: var(--space-sm);
   line-height: 1.35;
   transition: color var(--transition-fast);
@@ -86,7 +86,10 @@
   text-align: center;
   font-size: var(--font-size-sm);
   font-weight: 500;
-  color: var(--color-text-light);
+  background: var(--gradient-rose-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin-bottom: var(--space-xl);
@@ -99,18 +102,20 @@
   gap: var(--space-2xl);
 }
 .brand-logo {
-  opacity: 0.35;
+  opacity: 0.45;
   transition: opacity var(--transition-base);
-  filter: grayscale(100%);
   display: flex;
   align-items: center;
   font-family: var(--font-heading);
   font-size: 1.3rem;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: var(--color-text);
+  background: var(--gradient-rose-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
-.brand-logo:hover { opacity: 0.7; }
+.brand-logo:hover { opacity: 1; }
 
 @media (max-width: 768px) {
   .blog-latest__grid { grid-template-columns: 1fr; }
