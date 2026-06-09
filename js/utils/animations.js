@@ -5,6 +5,7 @@ const Animations = {
     this._progressBar()
     this._prefetch()
     this._pageTransitions()
+    this._pageEnter()
     this._scrollReveal()
   },
 
@@ -40,36 +41,38 @@ const Animations = {
     }, { passive: true })
   },
 
-  // Transição suave ao trocar de página
+  // Entrada fluida nos blocos de conteúdo da página (igual ao CRM)
+  _pageEnter() {
+    const skip = new Set(['HEADER', 'NAV', 'SCRIPT', 'STYLE', 'LINK', 'META'])
+    const skipClass = ['bottom-nav', 'fab-cart', 'page-bar']
+    const blocks = [...document.body.children].filter(el =>
+      !skip.has(el.tagName) &&
+      !skipClass.some(c => el.classList.contains(c))
+    )
+    blocks.forEach((el, i) => {
+      el.style.animation = `pageEnterItem 0.22s ease both ${i * 55}ms`
+    })
+  },
+
+  // Transição suave apenas ao entrar no CRM
   _pageTransitions() {
     document.addEventListener('click', e => {
       const link = e.target.closest('a[href]')
       if (!link) return
 
       const href = link.getAttribute('href')
-      if (
-        !href ||
-        href.startsWith('#') ||
-        href.startsWith('javascript') ||
-        href.startsWith('mailto') ||
-        href.startsWith('tel') ||
-        link.target === '_blank'
-      ) return
+      if (!href) return
 
-      e.preventDefault()
-
-      // Preserve bottom-nav scroll position across navigation
+      // Preserve bottom-nav scroll for all internal navigation
       const bottomNav = document.querySelector('.bottom-nav')
       if (bottomNav) sessionStorage.setItem('_bnScroll', bottomNav.scrollLeft)
 
-      if (this._bar) {
-        this._bar.classList.remove('is-done')
-        this._bar.style.opacity = '1'
-        this._bar.classList.add('is-running')
+      // Fade apenas na transição ecommerce → CRM
+      if (href === 'admin.html' || href.endsWith('/admin.html')) {
+        e.preventDefault()
+        document.body.classList.add('is-leaving')
+        setTimeout(() => { window.location.href = href }, 190)
       }
-
-      document.body.classList.add('is-leaving')
-      setTimeout(() => { window.location.href = href }, 190)
     })
   },
 

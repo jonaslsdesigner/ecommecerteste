@@ -131,6 +131,8 @@
 }
 .header__action-btn:hover { color: var(--color-primary); background: var(--color-bg-alt); }
 .header__action-btn svg { width: 22px; height: 22px; flex-shrink: 0; }
+.header__action-btn--admin { opacity: 0.35; }
+.header__action-btn--admin:hover { opacity: 1; }
 .header__action-label { display: none; }
 .header__badge {
   position: absolute;
