@@ -69,7 +69,7 @@ const Animations = {
       }
 
       document.body.classList.add('is-leaving')
-      window.location.href = href
+      setTimeout(() => { window.location.href = href }, 190)
     })
   },
 

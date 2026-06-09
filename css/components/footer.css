@@ -141,6 +141,8 @@
   transition: color var(--transition-fast);
 }
 .footer__bottom-link:hover { color: #ffffff; }
+.footer__admin-link { opacity: .35; margin-left: var(--space-md); }
+.footer__admin-link:hover { opacity: 1; color: var(--color-accent); }
 
 @media (max-width: 1024px) {
   .footer__grid { grid-template-columns: 1fr 1fr; gap: var(--space-xl); }

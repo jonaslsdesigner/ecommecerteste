@@ -1,6 +1,18 @@
-/* ── Page load & exit ─────────────────────────────────────── */
+/* ── Page transitions ─────────────────────────────────────── */
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pageOut {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-10px); }
+}
+body {
+  animation: pageIn 0.26s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
 body.is-leaving {
   pointer-events: none;
+  animation: pageOut 0.18s ease-in forwards;
 }
 
 /* ── Top progress bar ─────────────────────────────────────── */

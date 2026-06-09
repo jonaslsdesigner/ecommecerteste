@@ -6,6 +6,7 @@ const Header = {
     this._injectFab()
     this._cartCount()
     this._activeLink()
+    this._applyProfile()
   },
   _restoreBottomNavScroll() {
     const nav = document.querySelector('.bottom-nav')
@@ -84,7 +85,23 @@ const Header = {
       }
     })
   },
-  updateCart() { this._cartCount() }
+  updateCart() { this._cartCount() },
+  _applyProfile() {
+    const p = JSON.parse(localStorage.getItem('adm_profile') || '{}')
+    const photo = localStorage.getItem('adm_profile_photo') || 'assets/images/usuarios/shelly.webp'
+    const btn = document.querySelector('a[href="account.html"].header__action-btn')
+    if (!btn) return
+    const label = btn.querySelector('.header__action-label')
+    if (label && p.name) label.textContent = p.name.split(' ')[0]
+    const svgEl = btn.querySelector('svg')
+    if (svgEl) {
+      const img = document.createElement('img')
+      img.src = photo
+      img.style.cssText = 'width:26px;height:26px;border-radius:50%;object-fit:cover;display:block'
+      img.alt = p.name || 'Perfil'
+      svgEl.replaceWith(img)
+    }
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => Header.init())

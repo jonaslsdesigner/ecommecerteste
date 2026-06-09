@@ -106,8 +106,8 @@ function renderMiniItem(p) {
   </a>`
 }
 
-function bindCardEvents() {
-  document.querySelectorAll('.js-addcart').forEach(btn => {
+function bindCardEvents(container = document) {
+  container.querySelectorAll('.js-addcart').forEach(btn => {
     btn.addEventListener('click', e => {
       e.preventDefault()
       const id = parseInt(btn.dataset.id)
@@ -118,14 +118,14 @@ function bindCardEvents() {
       Toast.show('Adicionado ao carrinho!', product.name, 'success')
     })
   })
-  document.querySelectorAll('.js-quickview').forEach(btn => {
+  container.querySelectorAll('.js-quickview').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = parseInt(btn.dataset.id)
       const product = MOCK_PRODUCTS.find(p => p.id === id)
       if (product) Quickview.open(product)
     })
   })
-  document.querySelectorAll('.js-wishlist').forEach(btn => {
+  container.querySelectorAll('.js-wishlist').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = parseInt(btn.dataset.id)
       const added = Wishlist.toggle(id)
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ? newArrivals.filter(p => p.id !== naFeatured.id)
       : newArrivals.filter(p => p.category === filter && p.id !== naFeatured.id)
     naGridEl.innerHTML = pool.slice(0, 4).map(renderProductCard).join('')
-    bindCardEvents()
+    bindCardEvents(naGridEl)
   }
   renderNewGrid('all')
 
@@ -191,5 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
     blogLatestGrid.innerHTML = MOCK_BLOG_POSTS.slice(0, 3).map(renderLatestBlogCard).join('')
   }
 
-  bindCardEvents()
+  if (dealsGrid) bindCardEvents(dealsGrid)
+  if (dealsNew)  bindCardEvents(dealsNew)
+  if (dealsSale) bindCardEvents(dealsSale)
 })
