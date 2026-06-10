@@ -1363,6 +1363,11 @@ const SECTION_TITLES = {
   estoque: 'Estoque', pedidos: 'Pedidos', pagamentos: 'Pagamentos',
   fornecedores: 'Fornecedores', colaboradores: 'Colaboradores', clientes: 'Clientes',
   perfil: 'Meu Perfil',
+  'cms-produtos':  'Produtos — Conteúdo',
+  'cms-blog':      'Blog — Conteúdo',
+  'cms-novidades': 'Novidades — Conteúdo',
+  'cms-loja':      'Loja Física — Conteúdo',
+  'cms-banners':   'Banners — Conteúdo',
 }
 const PERIOD_SECTIONS = ['dashboard', 'vendas', 'financeiro']
 
@@ -1389,6 +1394,11 @@ function renderSection(section, period) {
     colaboradores: renderColaboradores,
     clientes: renderClientes,
     perfil: renderPerfil,
+    'cms-produtos':  renderCmsProdutos,
+    'cms-blog':      renderCmsBlog,
+    'cms-novidades': renderCmsNovidades,
+    'cms-loja':      renderCmsLojaFisica,
+    'cms-banners':   renderCmsBanners,
   }
 
   // Trigger animation
@@ -1400,6 +1410,9 @@ function renderSection(section, period) {
   initPendingCharts()
 
   if (section === 'perfil') bindProfileForm()
+
+  const _cmsBinders = { 'cms-produtos': bindCmsProdutos, 'cms-blog': bindCmsBlog, 'cms-novidades': bindCmsNovidades, 'cms-loja': bindCmsLojaFisica, 'cms-banners': bindCmsBanners }
+  if (_cmsBinders[section]) _cmsBinders[section]()
 
   // Order filter
   const orderFilter = document.getElementById('order-filter')
@@ -1500,4 +1513,792 @@ document.addEventListener('DOMContentLoaded', () => {
   initQuickActions()
   applyStoredProfile()
   renderSection('dashboard', 'semana')
+
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return
+    const open = document.querySelector('.cms-modal-overlay.is-open')
+    if (open) _cmsCloseModal(open.id)
+  })
 })
+
+// ══════════════════════════════════════════════════════════════════
+// CMS — Conteúdo do Site
+// ══════════════════════════════════════════════════════════════════
+
+function _cmsOpenModal(id) {
+  const el = document.getElementById(id)
+  if (!el) return
+  el.style.display = 'flex'
+  requestAnimationFrame(() => el.classList.add('is-open'))
+}
+function _cmsCloseModal(id) {
+  const el = document.getElementById(id)
+  if (!el) return
+  el.classList.remove('is-open')
+  setTimeout(() => { el.style.display = 'none' }, 220)
+}
+
+// ── Produtos ──────────────────────────────────────────────────────
+function renderCmsProdutos() {
+  const products = CMS.getProducts()
+  const cats = CMS.getCategories()
+  const rows = products.map(p => `
+    <tr data-id="${p.id}" data-cat="${p.category}" data-name="${(p.name||'').toLowerCase()}">
+      <td>${p.image ? `<img class="cms-table__thumb" src="${p.image}" alt="${p.name}" onerror="this.style.display='none'">` : '<div class="cms-table__thumb" style="background:#f5f5f5"></div>'}</td>
+      <td><strong>${p.name}</strong></td>
+      <td>${p.category}</td>
+      <td>R$&nbsp;${Number(p.price).toFixed(2).replace('.',',')}${p.comparePrice ? `<br><small style="text-decoration:line-through;color:var(--color-muted)">R$&nbsp;${Number(p.comparePrice).toFixed(2).replace('.',',')}</small>` : ''}</td>
+      <td>${p.isNew ? '<span class="cms-badge cms-badge--new">Novo</span> ' : ''}${p.isSale ? '<span class="cms-badge cms-badge--sale">Promo</span>' : ''}</td>
+      <td>
+        <button class="cms-icon-btn" data-edit="${p.id}" title="Editar">✏️</button>
+        <button class="cms-icon-btn cms-icon-btn--danger" data-del="${p.id}" title="Excluir">🗑</button>
+      </td>
+    </tr>`).join('')
+
+  return `
+    <div class="cms-toolbar">
+      <input class="cms-search" id="cms-prod-search" placeholder="Buscar produto…">
+      <select class="cms-filter-select cms-cat-select" id="cms-prod-cat-filter">
+        <option value="">Todas categorias</option>
+        ${cats.map(c => `<option>${c}</option>`).join('')}
+        <option value="__new__">+ Nova categoria</option>
+      </select>
+      <button class="cms-btn cms-btn--primary" id="cms-prod-new">+ Novo Produto</button>
+    </div>
+    <div class="adm-card" style="padding:0;overflow:auto">
+      <table class="cms-table" id="cms-prod-table">
+        <thead><tr><th>Foto</th><th>Nome</th><th>Categoria</th><th>Preço</th><th>Tags</th><th>Ações</th></tr></thead>
+        <tbody>${rows || '<tr><td colspan="6" class="cms-empty">Nenhum produto cadastrado.</td></tr>'}</tbody>
+      </table>
+    </div>
+    <div class="cms-modal-overlay" id="cms-prod-overlay" style="display:none">
+      <div class="cms-modal" style="max-width:600px">
+        <div class="cms-modal__header">
+          <span id="cms-prod-modal-title">Novo Produto</span>
+          <button class="cms-modal__close" id="cms-prod-close">✕</button>
+        </div>
+        <div class="cms-modal__body">
+          <form class="cms-form" id="cms-prod-form">
+            <input type="hidden" id="cms-prod-id">
+            <div class="cms-field cms-field--full">
+              <label class="cms-label">Nome do produto *</label>
+              <input class="cms-input" id="cms-prod-name" type="text" required placeholder="Ex.: Vestido Longo Floral">
+            </div>
+            <div class="cms-form-row">
+              <div class="cms-field">
+                <label class="cms-label">Categoria *</label>
+                <select class="cms-select cms-cat-select" id="cms-prod-cat">
+                  ${cats.map(c => `<option>${c}</option>`).join('')}
+                  <option value="__new__">+ Nova categoria</option>
+                </select>
+              </div>
+              <div class="cms-field">
+                <label class="cms-label">Preço (R$) *</label>
+                <input class="cms-input" id="cms-prod-price" type="number" min="0" step="0.01" required>
+              </div>
+              <div class="cms-field">
+                <label class="cms-label">Preço original (R$)</label>
+                <input class="cms-input" id="cms-prod-compare" type="number" min="0" step="0.01" placeholder="Opcional">
+              </div>
+            </div>
+            <div class="cms-form-row" style="gap:2rem">
+              <label class="cms-label" style="display:flex;align-items:center;gap:.5rem;cursor:pointer">
+                <input type="checkbox" id="cms-prod-isnew" style="accent-color:var(--color-primary);width:16px;height:16px">
+                Marcar como NOVO
+              </label>
+              <label class="cms-label" style="display:flex;align-items:center;gap:.5rem;cursor:pointer">
+                <input type="checkbox" id="cms-prod-issale" style="accent-color:var(--color-primary);width:16px;height:16px">
+                Marcar como PROMOÇÃO
+              </label>
+            </div>
+            <div class="cms-field cms-field--full">
+              <label class="cms-label">Foto do produto</label>
+              <div class="cms-img-picker">
+                <div class="cms-img-preview cms-img-preview--empty" id="cms-prod-img-preview"><span>Clique ou arraste uma foto</span></div>
+                <div class="cms-img-actions">
+                  <label class="cms-btn cms-btn--outline cms-btn--sm" style="cursor:pointer">
+                    Escolher arquivo<input type="file" id="cms-prod-file" accept="image/*" style="display:none">
+                  </label>
+                  <span style="color:var(--color-muted);font-size:.8rem">ou</span>
+                  <input class="cms-img-url-input" id="cms-prod-url" type="url" placeholder="Cole a URL da imagem">
+                </div>
+              </div>
+              <input type="hidden" id="cms-prod-img">
+            </div>
+          </form>
+        </div>
+        <div class="cms-modal__footer">
+          <button class="cms-btn cms-btn--outline" id="cms-prod-cancel">Cancelar</button>
+          <button class="cms-btn cms-btn--primary" id="cms-prod-save">Salvar produto</button>
+        </div>
+      </div>
+    </div>`
+}
+
+function bindCmsProdutos() {
+  const search = document.getElementById('cms-prod-search')
+  const catFilter = document.getElementById('cms-prod-cat-filter')
+  function filterTable() {
+    const q = (search?.value || '').toLowerCase()
+    const cat = catFilter?.value || ''
+    document.querySelectorAll('#cms-prod-table tbody tr[data-id]').forEach(row => {
+      row.style.display = (!q || row.dataset.name.includes(q)) && (!cat || row.dataset.cat === cat) ? '' : 'none'
+    })
+  }
+  search?.addEventListener('input', filterTable)
+  catFilter?.addEventListener('change', filterTable)
+
+  document.querySelectorAll('.cms-cat-select').forEach(sel => {
+    sel.addEventListener('change', () => {
+      if (sel.value !== '__new__') return
+      const name = prompt('Nome da nova categoria:')?.trim()
+      if (!name) { sel.value = sel.id === 'cms-prod-cat-filter' ? '' : (CMS.getCategories()[0] || ''); return }
+      CMS.addCategory(name)
+      document.querySelectorAll('.cms-cat-select').forEach(s => {
+        const opt = document.createElement('option')
+        opt.value = name
+        opt.textContent = name
+        s.insertBefore(opt, s.querySelector('option[value="__new__"]'))
+        s.value = name
+      })
+    })
+  })
+
+  document.getElementById('cms-prod-new')?.addEventListener('click', () => _cmsProdOpenModal(null))
+
+  document.getElementById('cms-prod-table')?.addEventListener('click', e => {
+    const editBtn = e.target.closest('[data-edit]')
+    const delBtn  = e.target.closest('[data-del]')
+    if (editBtn) {
+      const p = CMS.getProducts().find(x => x.id === parseInt(editBtn.dataset.edit))
+      if (p) _cmsProdOpenModal(p)
+    }
+    if (delBtn && confirm('Excluir este produto? Esta ação não pode ser desfeita.')) {
+      CMS.deleteProduct(parseInt(delBtn.dataset.del))
+      navigate('cms-produtos')
+    }
+  })
+
+  document.getElementById('cms-prod-close')?.addEventListener('click',  () => _cmsCloseModal('cms-prod-overlay'))
+  document.getElementById('cms-prod-cancel')?.addEventListener('click', () => _cmsCloseModal('cms-prod-overlay'))
+  document.getElementById('cms-prod-overlay')?.addEventListener('click', e => { if (e.target === e.currentTarget) _cmsCloseModal('cms-prod-overlay') })
+
+  document.getElementById('cms-prod-file')?.addEventListener('change', async e => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const resized = await CMS.resizeImage(await CMS.fileToDataUrl(file))
+    _cmsProdSetImg(resized)
+  })
+  document.getElementById('cms-prod-url')?.addEventListener('blur', e => {
+    const url = e.target.value.trim()
+    if (url) _cmsProdSetImg(url)
+  })
+
+  document.getElementById('cms-prod-save')?.addEventListener('click', () => {
+    if (!document.getElementById('cms-prod-form').reportValidity()) return
+    const idVal = document.getElementById('cms-prod-id').value
+    const name  = document.getElementById('cms-prod-name').value.trim()
+    CMS.upsertProduct({
+      id:           idVal ? parseInt(idVal) : null,
+      name,
+      slug:         name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,''),
+      category:     document.getElementById('cms-prod-cat').value,
+      price:        parseFloat(document.getElementById('cms-prod-price').value) || 0,
+      comparePrice: parseFloat(document.getElementById('cms-prod-compare').value) || null,
+      isNew:        document.getElementById('cms-prod-isnew').checked,
+      isSale:       document.getElementById('cms-prod-issale').checked,
+      image:        document.getElementById('cms-prod-img').value || '',
+      rating:       4.5,
+      reviews:      0,
+    })
+    _cmsCloseModal('cms-prod-overlay')
+    navigate('cms-produtos')
+  })
+}
+
+function _cmsProdOpenModal(p) {
+  document.getElementById('cms-prod-modal-title').textContent = p ? 'Editar Produto' : 'Novo Produto'
+  document.getElementById('cms-prod-id').value      = p?.id ?? ''
+  document.getElementById('cms-prod-name').value    = p?.name ?? ''
+  document.getElementById('cms-prod-cat').value     = p?.category ?? 'Vestidos'
+  document.getElementById('cms-prod-price').value   = p?.price ?? ''
+  document.getElementById('cms-prod-compare').value = p?.comparePrice ?? ''
+  document.getElementById('cms-prod-isnew').checked  = p?.isNew ?? false
+  document.getElementById('cms-prod-issale').checked = p?.isSale ?? false
+  document.getElementById('cms-prod-url').value = ''
+  _cmsProdSetImg(p?.image ?? '')
+  _cmsOpenModal('cms-prod-overlay')
+}
+
+function _cmsProdSetImg(src) {
+  document.getElementById('cms-prod-img').value = src
+  const preview = document.getElementById('cms-prod-img-preview')
+  if (!preview) return
+  if (src) {
+    preview.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:6px" onerror="this.parentElement.innerHTML='<span>Imagem inválida</span>'">`
+    preview.classList.remove('cms-img-preview--empty')
+  } else {
+    preview.innerHTML = '<span>Clique ou arraste uma foto</span>'
+    preview.classList.add('cms-img-preview--empty')
+  }
+}
+
+// ── Blog ──────────────────────────────────────────────────────────
+function renderCmsBlog() {
+  const posts = CMS.getBlogPosts()
+  const cats  = ['Moda','Tendências','Estilo de Vida','Dicas','Lookbook']
+  const rows  = posts.map(p => `
+    <tr data-id="${p.id}" data-name="${(p.title||'').toLowerCase()}">
+      <td>${p.image ? `<img class="cms-table__thumb" src="${p.image}" alt="${p.title}" onerror="this.style.display='none'">` : '<div class="cms-table__thumb" style="background:#f5f5f5"></div>'}</td>
+      <td><strong>${p.title}</strong><br><small style="color:var(--color-muted)">${(p.excerpt||'').substring(0,70)}…</small></td>
+      <td>${p.category}</td>
+      <td>${p.date}</td>
+      <td>
+        <button class="cms-icon-btn" data-edit="${p.id}" title="Editar">✏️</button>
+        <button class="cms-icon-btn cms-icon-btn--danger" data-del="${p.id}" title="Excluir">🗑</button>
+      </td>
+    </tr>`).join('')
+
+  return `
+    <div class="cms-toolbar">
+      <input class="cms-search" id="cms-blog-search" placeholder="Buscar post…">
+      <button class="cms-btn cms-btn--primary" id="cms-blog-new">+ Novo Post</button>
+    </div>
+    <div class="adm-card" style="padding:0;overflow:auto">
+      <table class="cms-table" id="cms-blog-table">
+        <thead><tr><th>Capa</th><th>Título</th><th>Categoria</th><th>Data</th><th>Ações</th></tr></thead>
+        <tbody>${rows || '<tr><td colspan="5" class="cms-empty">Nenhum post cadastrado.</td></tr>'}</tbody>
+      </table>
+    </div>
+    <div class="cms-modal-overlay" id="cms-blog-overlay" style="display:none">
+      <div class="cms-modal" style="max-width:640px">
+        <div class="cms-modal__header">
+          <span id="cms-blog-modal-title">Novo Post</span>
+          <button class="cms-modal__close" id="cms-blog-close">✕</button>
+        </div>
+        <div class="cms-modal__body" style="max-height:68vh;overflow-y:auto">
+          <form class="cms-form" id="cms-blog-form">
+            <input type="hidden" id="cms-blog-id">
+            <div class="cms-field cms-field--full">
+              <label class="cms-label">Título *</label>
+              <input class="cms-input" id="cms-blog-title" type="text" required placeholder="Ex.: Dicas de Look para o Verão">
+            </div>
+            <div class="cms-form-row">
+              <div class="cms-field">
+                <label class="cms-label">Categoria *</label>
+                <select class="cms-select" id="cms-blog-cat">
+                  ${cats.map(c => `<option>${c}</option>`).join('')}
+                </select>
+              </div>
+              <div class="cms-field">
+                <label class="cms-label">Data *</label>
+                <input class="cms-input" id="cms-blog-date" type="date" required>
+              </div>
+              <div class="cms-field">
+                <label class="cms-label">Autor</label>
+                <input class="cms-input" id="cms-blog-author" type="text" placeholder="Jhonny Styles">
+              </div>
+            </div>
+            <div class="cms-field cms-field--full">
+              <label class="cms-label">Resumo (aparece nos cards) *</label>
+              <textarea class="cms-textarea" id="cms-blog-excerpt" rows="2" required placeholder="Breve descrição do post…"></textarea>
+            </div>
+            <div class="cms-field cms-field--full">
+              <label class="cms-label">Conteúdo completo (HTML permitido)</label>
+              <textarea class="cms-textarea" id="cms-blog-content" rows="8" placeholder="&lt;p&gt;Texto do post…&lt;/p&gt;"></textarea>
+            </div>
+            <div class="cms-field cms-field--full">
+              <label class="cms-label">Foto de capa</label>
+              <div class="cms-img-picker">
+                <div class="cms-img-preview cms-img-preview--empty" id="cms-blog-img-preview"><span>Clique ou arraste uma foto</span></div>
+                <div class="cms-img-actions">
+                  <label class="cms-btn cms-btn--outline cms-btn--sm" style="cursor:pointer">
+                    Escolher arquivo<input type="file" id="cms-blog-file" accept="image/*" style="display:none">
+                  </label>
+                  <span style="color:var(--color-muted);font-size:.8rem">ou</span>
+                  <input class="cms-img-url-input" id="cms-blog-url" type="url" placeholder="Cole a URL da imagem">
+                </div>
+              </div>
+              <input type="hidden" id="cms-blog-img">
+            </div>
+          </form>
+        </div>
+        <div class="cms-modal__footer">
+          <button class="cms-btn cms-btn--outline" id="cms-blog-cancel">Cancelar</button>
+          <button class="cms-btn cms-btn--primary" id="cms-blog-save">Salvar post</button>
+        </div>
+      </div>
+    </div>`
+}
+
+function bindCmsBlog() {
+  const search = document.getElementById('cms-blog-search')
+  search?.addEventListener('input', () => {
+    const q = search.value.toLowerCase()
+    document.querySelectorAll('#cms-blog-table tbody tr[data-id]').forEach(row => {
+      row.style.display = !q || row.dataset.name.includes(q) ? '' : 'none'
+    })
+  })
+
+  document.getElementById('cms-blog-new')?.addEventListener('click', () => _cmsBlogOpenModal(null))
+
+  document.getElementById('cms-blog-table')?.addEventListener('click', e => {
+    const editBtn = e.target.closest('[data-edit]')
+    const delBtn  = e.target.closest('[data-del]')
+    if (editBtn) {
+      const p = CMS.getBlogPosts().find(x => x.id === parseInt(editBtn.dataset.edit))
+      if (p) _cmsBlogOpenModal(p)
+    }
+    if (delBtn && confirm('Excluir este post?')) {
+      CMS.deletePost(parseInt(delBtn.dataset.del))
+      navigate('cms-blog')
+    }
+  })
+
+  document.getElementById('cms-blog-close')?.addEventListener('click',  () => _cmsCloseModal('cms-blog-overlay'))
+  document.getElementById('cms-blog-cancel')?.addEventListener('click', () => _cmsCloseModal('cms-blog-overlay'))
+  document.getElementById('cms-blog-overlay')?.addEventListener('click', e => { if (e.target === e.currentTarget) _cmsCloseModal('cms-blog-overlay') })
+
+  document.getElementById('cms-blog-file')?.addEventListener('change', async e => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const resized = await CMS.resizeImage(await CMS.fileToDataUrl(file))
+    _cmsBlogSetImg(resized)
+  })
+  document.getElementById('cms-blog-url')?.addEventListener('blur', e => {
+    const url = e.target.value.trim()
+    if (url) _cmsBlogSetImg(url)
+  })
+
+  document.getElementById('cms-blog-save')?.addEventListener('click', () => {
+    if (!document.getElementById('cms-blog-form').reportValidity()) return
+    const idVal = document.getElementById('cms-blog-id').value
+    const title = document.getElementById('cms-blog-title').value.trim()
+    CMS.upsertPost({
+      id:       idVal ? parseInt(idVal) : null,
+      title,
+      slug:     title.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,''),
+      category: document.getElementById('cms-blog-cat').value,
+      date:     document.getElementById('cms-blog-date').value,
+      author:   document.getElementById('cms-blog-author').value.trim() || 'Jhonny Styles',
+      excerpt:  document.getElementById('cms-blog-excerpt').value.trim(),
+      content:  document.getElementById('cms-blog-content').value,
+      image:    document.getElementById('cms-blog-img').value || '',
+    })
+    _cmsCloseModal('cms-blog-overlay')
+    navigate('cms-blog')
+  })
+}
+
+function _cmsBlogOpenModal(p) {
+  document.getElementById('cms-blog-modal-title').textContent = p ? 'Editar Post' : 'Novo Post'
+  document.getElementById('cms-blog-id').value      = p?.id ?? ''
+  document.getElementById('cms-blog-title').value   = p?.title ?? ''
+  document.getElementById('cms-blog-cat').value     = p?.category ?? 'Moda'
+  document.getElementById('cms-blog-date').value    = p?.date ?? new Date().toISOString().slice(0,10)
+  document.getElementById('cms-blog-author').value  = p?.author ?? 'Jhonny Styles'
+  document.getElementById('cms-blog-excerpt').value = p?.excerpt ?? ''
+  document.getElementById('cms-blog-content').value = p?.content ?? ''
+  document.getElementById('cms-blog-url').value = ''
+  _cmsBlogSetImg(p?.image ?? '')
+  _cmsOpenModal('cms-blog-overlay')
+}
+
+function _cmsBlogSetImg(src) {
+  document.getElementById('cms-blog-img').value = src
+  const preview = document.getElementById('cms-blog-img-preview')
+  if (!preview) return
+  if (src) {
+    preview.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:6px">`
+    preview.classList.remove('cms-img-preview--empty')
+  } else {
+    preview.innerHTML = '<span>Clique ou arraste uma foto</span>'
+    preview.classList.add('cms-img-preview--empty')
+  }
+}
+
+// ── Loja Física ───────────────────────────────────────────────────
+function renderCmsLojaFisica() {
+  const data = CMS.getLojaFisica()
+  const galleryItems = (data.gallery || []).map((src, i) => `
+    <div class="cms-gallery__item" data-idx="${i}">
+      <img src="${src}" alt="Foto ${i+1}" onerror="this.style.display='none'">
+      <button class="cms-gallery__del" data-idx="${i}" title="Remover">✕</button>
+    </div>`).join('')
+
+  return `
+    <div class="adm-card">
+      <div class="adm-card__header">
+        <h3 class="adm-card__title">Informações da Loja Física</h3>
+        <span class="adm-card__subtitle">Alterações salvas ao clicar em Salvar</span>
+      </div>
+      <form class="adm-profile-form" id="cms-loja-form">
+        <div class="adm-profile-form__field">
+          <label class="adm-profile-form__label">Sobre a loja (texto institucional)</label>
+          <textarea class="adm-profile-form__textarea" id="cms-loja-about" rows="4">${data.about || ''}</textarea>
+        </div>
+        <div class="adm-profile-form__field">
+          <label class="adm-profile-form__label">Endereço</label>
+          <input class="adm-profile-form__input" id="cms-loja-address" type="text" value="${data.address || ''}">
+        </div>
+        <div class="adm-profile-form__row adm-profile-form__row--3">
+          <div class="adm-profile-form__field">
+            <label class="adm-profile-form__label">Horário de funcionamento</label>
+            <input class="adm-profile-form__input" id="cms-loja-hours" type="text" value="${data.hours || ''}">
+          </div>
+          <div class="adm-profile-form__field">
+            <label class="adm-profile-form__label">Telefone</label>
+            <input class="adm-profile-form__input" id="cms-loja-phone" type="text" value="${data.phone || ''}">
+          </div>
+          <div class="adm-profile-form__field">
+            <label class="adm-profile-form__label">WhatsApp (só números)</label>
+            <input class="adm-profile-form__input" id="cms-loja-whatsapp" type="text" value="${data.whatsapp || ''}" placeholder="5511999999999">
+          </div>
+        </div>
+        <div class="adm-profile-form__field">
+          <label class="adm-profile-form__label">Código do mapa (Google Maps embed &lt;iframe&gt;)</label>
+          <textarea class="adm-profile-form__textarea" id="cms-loja-map" rows="3" placeholder='&lt;iframe src="https://www.google.com/maps/embed?..." ...&gt;&lt;/iframe&gt;'>${data.mapEmbed || ''}</textarea>
+        </div>
+        <div class="adm-profile-form__field">
+          <label class="adm-profile-form__label">Galeria de fotos da loja</label>
+          <div class="cms-gallery" id="cms-loja-gallery">
+            ${galleryItems}
+            <label class="cms-gallery__add" title="Adicionar foto" style="cursor:pointer">
+              +<input type="file" id="cms-loja-gallery-input" accept="image/*" multiple style="display:none">
+            </label>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end">
+          <button type="button" class="cms-btn cms-btn--primary" id="cms-loja-save">Salvar alterações</button>
+        </div>
+      </form>
+    </div>`
+}
+
+function bindCmsLojaFisica() {
+  document.getElementById('cms-loja-gallery-input')?.addEventListener('change', async e => {
+    const files = Array.from(e.target.files || [])
+    const data  = CMS.getLojaFisica()
+    data.gallery = data.gallery || []
+    for (const file of files) {
+      const resized = await CMS.resizeImage(await CMS.fileToDataUrl(file), 1200, 900)
+      data.gallery.push(resized)
+    }
+    CMS.saveLojaFisica(data)
+    navigate('cms-loja')
+  })
+
+  document.getElementById('cms-loja-gallery')?.addEventListener('click', e => {
+    const delBtn = e.target.closest('.cms-gallery__del')
+    if (!delBtn) return
+    const data = CMS.getLojaFisica()
+    data.gallery.splice(parseInt(delBtn.dataset.idx), 1)
+    CMS.saveLojaFisica(data)
+    navigate('cms-loja')
+  })
+
+  document.getElementById('cms-loja-save')?.addEventListener('click', () => {
+    const data = {
+      ...CMS.getLojaFisica(),
+      about:    document.getElementById('cms-loja-about').value,
+      address:  document.getElementById('cms-loja-address').value,
+      hours:    document.getElementById('cms-loja-hours').value,
+      phone:    document.getElementById('cms-loja-phone').value,
+      whatsapp: document.getElementById('cms-loja-whatsapp').value,
+      mapEmbed: document.getElementById('cms-loja-map').value,
+    }
+    CMS.saveLojaFisica(data)
+    const btn = document.getElementById('cms-loja-save')
+    btn.textContent = 'Salvo!'
+    btn.disabled = true
+    setTimeout(() => { btn.textContent = 'Salvar alterações'; btn.disabled = false }, 2000)
+  })
+}
+
+// ── Novidades ─────────────────────────────────────────────────────
+function renderCmsNovidades() {
+  const data    = CMS.getNovidades()
+  const allCats = ['Vestidos','Blusas','Conjuntos','Calças','Shorts','Saias','Looks','Promoções']
+  const shown   = data.showCategories || []
+
+  return `
+    <div class="adm-card">
+      <div class="adm-card__header">
+        <h3 class="adm-card__title">Página Novidades</h3>
+        <span class="adm-card__subtitle">Hero e categorias exibidas</span>
+      </div>
+      <form class="adm-profile-form" id="cms-nov-form">
+        <div class="adm-profile-form__row">
+          <div class="adm-profile-form__field">
+            <label class="adm-profile-form__label">Título do hero</label>
+            <input class="adm-profile-form__input" id="cms-nov-title" type="text" value="${data.heroTitle || 'Novidades'}">
+          </div>
+          <div class="adm-profile-form__field">
+            <label class="adm-profile-form__label">Subtítulo do hero</label>
+            <input class="adm-profile-form__input" id="cms-nov-subtitle" type="text" value="${data.heroSubtitle || ''}">
+          </div>
+        </div>
+        <div class="adm-profile-form__field">
+          <label class="adm-profile-form__label">Imagem de fundo do hero</label>
+          <div class="cms-img-picker">
+            <div class="cms-img-preview${data.heroBg ? '' : ' cms-img-preview--empty'}" id="cms-nov-img-preview">
+              ${data.heroBg ? `<img src="${data.heroBg}" style="width:100%;height:100%;object-fit:cover;border-radius:6px">` : '<span>Clique ou arraste uma foto</span>'}
+            </div>
+            <div class="cms-img-actions">
+              <label class="cms-btn cms-btn--outline cms-btn--sm" style="cursor:pointer">
+                Escolher arquivo<input type="file" id="cms-nov-file" accept="image/*" style="display:none">
+              </label>
+              <span style="color:var(--adm-muted);font-size:.8rem">ou</span>
+              <input class="adm-profile-form__input" id="cms-nov-url" type="url" value="${data.heroBg && !data.heroBg.startsWith('data:') ? data.heroBg : ''}" placeholder="Cole a URL da imagem" style="flex:1">
+            </div>
+          </div>
+          <input type="hidden" id="cms-nov-bg" value="${data.heroBg || ''}">
+        </div>
+        <div class="adm-profile-form__field">
+          <label class="adm-profile-form__label">Categorias visíveis na página</label>
+          <div style="display:flex;flex-wrap:wrap;gap:.75rem;margin-top:.25rem">
+            ${allCats.map(cat => `
+              <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.875rem;color:var(--adm-text)">
+                <input type="checkbox" name="cms-nov-cat" value="${cat}" ${shown.includes(cat)?'checked':''} style="accent-color:var(--adm-primary);width:15px;height:15px">
+                ${cat}
+              </label>`).join('')}
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end">
+          <button type="button" class="cms-btn cms-btn--primary" id="cms-nov-save">Salvar alterações</button>
+        </div>
+      </form>
+    </div>`
+}
+
+function bindCmsNovidades() {
+  document.getElementById('cms-nov-file')?.addEventListener('change', async e => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const resized = await CMS.resizeImage(await CMS.fileToDataUrl(file), 1920, 600)
+    _cmsNovSetImg(resized)
+  })
+  document.getElementById('cms-nov-url')?.addEventListener('blur', e => {
+    const url = e.target.value.trim()
+    if (url) _cmsNovSetImg(url)
+  })
+
+  document.getElementById('cms-nov-save')?.addEventListener('click', () => {
+    const showCategories = Array.from(document.querySelectorAll('input[name="cms-nov-cat"]:checked')).map(el => el.value)
+    CMS.saveNovidades({
+      heroTitle:    document.getElementById('cms-nov-title').value,
+      heroSubtitle: document.getElementById('cms-nov-subtitle').value,
+      heroBg:       document.getElementById('cms-nov-bg').value,
+      showCategories,
+    })
+    const btn = document.getElementById('cms-nov-save')
+    btn.textContent = 'Salvo!'
+    btn.disabled = true
+    setTimeout(() => { btn.textContent = 'Salvar alterações'; btn.disabled = false }, 2000)
+  })
+}
+
+function _cmsNovSetImg(src) {
+  document.getElementById('cms-nov-bg').value = src
+  if (!src.startsWith('data:')) document.getElementById('cms-nov-url').value = src
+  const preview = document.getElementById('cms-nov-img-preview')
+  if (!preview) return
+  if (src) {
+    preview.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:6px">`
+    preview.classList.remove('cms-img-preview--empty')
+  } else {
+    preview.innerHTML = '<span>Clique ou arraste uma foto</span>'
+    preview.classList.add('cms-img-preview--empty')
+  }
+}
+
+// ── Banners ───────────────────────────────────────────────────────
+function _cmsBannerParseTitleParts(titleHtml) {
+  const [main, ...rest] = (titleHtml || '').split('<br>')
+  const italic = (rest.join('<br>') || '').replace(/<\/?em>/g, '')
+  return { main: main || '', italic }
+}
+
+function renderCmsBanners() {
+  const banners = CMS.getBanners()
+
+  const cards = banners.map(b => {
+    const { main, italic } = _cmsBannerParseTitleParts(b.title)
+    return `
+    <div class="cms-banner-card" data-id="${b.id}">
+      <div class="cms-banner-card__preview">
+        ${b.image
+          ? `<img src="${b.image}" alt="${main}" onerror="this.style.display='none'">`
+          : '<div class="cms-banner-card__no-img">Sem imagem</div>'
+        }
+        <div class="cms-banner-card__overlay">
+          <span class="cms-banner-card__handle">${b.handle || ''}</span>
+          <span class="cms-banner-card__sub">${b.subtitle || ''}</span>
+          <span class="cms-banner-card__title">${main}${italic ? `<br><em>${italic}</em>` : ''}</span>
+        </div>
+      </div>
+      <div class="cms-banner-card__footer">
+        <span class="cms-banner-card__label">${b.btnText || 'Ver Coleção'} → ${b.link || ''}</span>
+        <div class="cms-banner-card__actions">
+          <button class="cms-icon-btn" data-edit="${b.id}" title="Editar">✏️</button>
+          <button class="cms-icon-btn cms-icon-btn--danger" data-del="${b.id}" title="Excluir">🗑</button>
+        </div>
+      </div>
+    </div>`
+  }).join('')
+
+  return `
+    <div class="cms-toolbar">
+      <span style="font-size:.85rem;color:var(--adm-muted)">${banners.length} banner${banners.length !== 1 ? 's' : ''} ativo${banners.length !== 1 ? 's' : ''}</span>
+      <button class="cms-btn cms-btn--primary" id="cms-banner-new">+ Novo Banner</button>
+    </div>
+    <div class="cms-banner-grid" id="cms-banner-grid">
+      ${cards || '<div style="color:var(--adm-muted);padding:2rem">Nenhum banner cadastrado.</div>'}
+    </div>
+
+    <div class="cms-modal-overlay" id="cms-banner-overlay" style="display:none">
+      <div class="cms-modal" style="max-width:600px">
+        <div class="cms-modal__header">
+          <span id="cms-banner-modal-title">Novo Banner</span>
+          <button class="cms-modal__close" id="cms-banner-close">✕</button>
+        </div>
+        <div class="cms-modal__body">
+          <form class="cms-form" id="cms-banner-form">
+            <input type="hidden" id="cms-banner-id">
+            <div class="cms-field cms-field--full">
+              <label class="cms-label">Imagem de fundo</label>
+              <div class="cms-img-picker">
+                <div class="cms-img-preview cms-img-preview--empty" id="cms-banner-img-preview">
+                  <span>Clique ou arraste uma foto</span>
+                </div>
+                <div class="cms-img-actions">
+                  <label class="cms-btn cms-btn--outline cms-btn--sm" style="cursor:pointer">
+                    Escolher arquivo<input type="file" id="cms-banner-file" accept="image/*" style="display:none">
+                  </label>
+                  <span style="color:var(--adm-muted);font-size:.8rem">ou</span>
+                  <input class="cms-img-url-input" id="cms-banner-url" type="url" placeholder="Cole a URL da imagem">
+                </div>
+              </div>
+              <input type="hidden" id="cms-banner-img">
+            </div>
+            <div class="cms-form-row">
+              <div class="cms-field">
+                <label class="cms-label">Handle</label>
+                <input class="cms-input" id="cms-banner-handle" type="text" placeholder="@jhonnystylos">
+              </div>
+              <div class="cms-field">
+                <label class="cms-label">Subtítulo</label>
+                <input class="cms-input" id="cms-banner-subtitle" type="text" placeholder="Nova coleção chegou!">
+              </div>
+            </div>
+            <div class="cms-form-row">
+              <div class="cms-field">
+                <label class="cms-label">Título — linha normal</label>
+                <input class="cms-input" id="cms-banner-title-main" type="text" placeholder="Looks">
+              </div>
+              <div class="cms-field">
+                <label class="cms-label">Título — linha em itálico</label>
+                <input class="cms-input" id="cms-banner-title-italic" type="text" placeholder="Exclusivos">
+              </div>
+            </div>
+            <div class="cms-form-row">
+              <div class="cms-field">
+                <label class="cms-label">Texto do botão</label>
+                <input class="cms-input" id="cms-banner-btn-text" type="text" placeholder="Ver Coleção">
+              </div>
+              <div class="cms-field">
+                <label class="cms-label">Link do botão</label>
+                <input class="cms-input" id="cms-banner-link" type="text" placeholder="shop.html">
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="cms-modal__footer">
+          <button class="cms-btn cms-btn--outline" id="cms-banner-cancel">Cancelar</button>
+          <button class="cms-btn cms-btn--primary" id="cms-banner-save">Salvar banner</button>
+        </div>
+      </div>
+    </div>`
+}
+
+function bindCmsBanners() {
+  document.getElementById('cms-banner-new')?.addEventListener('click', () => _cmsBannerOpenModal(null))
+
+  document.getElementById('cms-banner-grid')?.addEventListener('click', e => {
+    const editBtn = e.target.closest('[data-edit]')
+    const delBtn  = e.target.closest('[data-del]')
+    if (editBtn) {
+      const b = CMS.getBanners().find(x => x.id === parseInt(editBtn.dataset.edit))
+      if (b) _cmsBannerOpenModal(b)
+    }
+    if (delBtn && confirm('Excluir este banner?')) {
+      CMS.saveBanners(CMS.getBanners().filter(x => x.id !== parseInt(delBtn.dataset.del)))
+      navigate('cms-banners')
+    }
+  })
+
+  document.getElementById('cms-banner-close')?.addEventListener('click',  () => _cmsCloseModal('cms-banner-overlay'))
+  document.getElementById('cms-banner-cancel')?.addEventListener('click', () => _cmsCloseModal('cms-banner-overlay'))
+  document.getElementById('cms-banner-overlay')?.addEventListener('click', e => { if (e.target === e.currentTarget) _cmsCloseModal('cms-banner-overlay') })
+
+  document.getElementById('cms-banner-file')?.addEventListener('change', async e => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const resized = await CMS.resizeImage(await CMS.fileToDataUrl(file), 1920, 800)
+    _cmsBannerSetImg(resized)
+  })
+  document.getElementById('cms-banner-url')?.addEventListener('blur', e => {
+    const url = e.target.value.trim()
+    if (url) _cmsBannerSetImg(url)
+  })
+
+  document.getElementById('cms-banner-save')?.addEventListener('click', () => {
+    const idVal       = document.getElementById('cms-banner-id').value
+    const titleMain   = document.getElementById('cms-banner-title-main').value.trim()
+    const titleItalic = document.getElementById('cms-banner-title-italic').value.trim()
+    const banner = {
+      id:       idVal ? parseInt(idVal) : null,
+      image:    document.getElementById('cms-banner-img').value || '',
+      handle:   document.getElementById('cms-banner-handle').value.trim(),
+      subtitle: document.getElementById('cms-banner-subtitle').value.trim(),
+      title:    titleItalic ? `${titleMain}<br><em>${titleItalic}</em>` : titleMain,
+      btnText:  document.getElementById('cms-banner-btn-text').value.trim() || 'Ver Coleção',
+      link:     document.getElementById('cms-banner-link').value.trim() || 'shop.html',
+    }
+    const arr = CMS.getBanners()
+    const idx = arr.findIndex(x => x.id === banner.id)
+    if (idx >= 0) arr[idx] = banner
+    else arr.push({ ...banner, id: CMS._newId(arr) })
+    CMS.saveBanners(arr)
+    _cmsCloseModal('cms-banner-overlay')
+    navigate('cms-banners')
+  })
+}
+
+function _cmsBannerOpenModal(b) {
+  const { main, italic } = _cmsBannerParseTitleParts(b?.title)
+  document.getElementById('cms-banner-modal-title').textContent   = b ? 'Editar Banner' : 'Novo Banner'
+  document.getElementById('cms-banner-id').value                  = b?.id ?? ''
+  document.getElementById('cms-banner-handle').value              = b?.handle ?? '@jhonnystylos'
+  document.getElementById('cms-banner-subtitle').value            = b?.subtitle ?? ''
+  document.getElementById('cms-banner-title-main').value          = main
+  document.getElementById('cms-banner-title-italic').value        = italic
+  document.getElementById('cms-banner-btn-text').value            = b?.btnText ?? 'Ver Coleção'
+  document.getElementById('cms-banner-link').value                = b?.link ?? 'shop.html'
+  document.getElementById('cms-banner-url').value = ''
+  _cmsBannerSetImg(b?.image ?? '')
+  _cmsOpenModal('cms-banner-overlay')
+}
+
+function _cmsBannerSetImg(src) {
+  document.getElementById('cms-banner-img').value = src
+  const preview = document.getElementById('cms-banner-img-preview')
+  if (!preview) return
+  if (src) {
+    preview.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:6px">`
+    preview.classList.remove('cms-img-preview--empty')
+  } else {
+    preview.innerHTML = '<span>Clique ou arraste uma foto</span>'
+    preview.classList.add('cms-img-preview--empty')
+  }
+}

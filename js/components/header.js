@@ -87,20 +87,22 @@ const Header = {
   },
   updateCart() { this._cartCount() },
   _applyProfile() {
-    const p = JSON.parse(localStorage.getItem('adm_profile') || '{}')
-    const photo = localStorage.getItem('adm_profile_photo') || 'assets/images/usuarios/shelly.webp'
+    const photo = localStorage.getItem('adm_profile_photo')
+    if (!photo) return
     const btn = document.querySelector('a[href="account.html"].header__action-btn')
     if (!btn) return
-    const label = btn.querySelector('.header__action-label')
-    if (label && p.name) label.textContent = p.name.split(' ')[0]
     const svgEl = btn.querySelector('svg')
-    if (svgEl) {
-      const img = document.createElement('img')
-      img.src = photo
-      img.style.cssText = 'width:26px;height:26px;border-radius:50%;object-fit:cover;display:block'
-      img.alt = p.name || 'Perfil'
-      svgEl.replaceWith(img)
-    }
+    if (!svgEl) return
+    const adm  = JSON.parse(localStorage.getItem('adm_profile')  || '{}')
+    const user = JSON.parse(localStorage.getItem('user_profile') || '{}')
+    const name = adm.name || user.name || ''
+    const label = btn.querySelector('.header__action-label')
+    if (label && name) label.textContent = name.split(' ')[0]
+    const img = document.createElement('img')
+    img.src = photo
+    img.style.cssText = 'width:26px;height:26px;border-radius:50%;object-fit:cover;display:block;flex-shrink:0'
+    img.alt = name || 'Perfil'
+    svgEl.replaceWith(img)
   }
 }
 

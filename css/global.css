@@ -1,12 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Poppins:wght@300;400;500;600;700&display=swap');
 
-html { overflow-x: hidden; }
+html { overflow-x: hidden; scrollbar-gutter: stable; }
 body {
   font-family: var(--font-body);
   font-size: var(--font-size-base);
   color: var(--color-text);
   background: var(--color-bg);
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* Container */

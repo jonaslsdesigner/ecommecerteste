@@ -5,7 +5,6 @@ const Animations = {
     this._progressBar()
     this._prefetch()
     this._pageTransitions()
-    this._pageEnter()
     this._scrollReveal()
   },
 
@@ -39,19 +38,6 @@ const Animations = {
       link.href = href
       document.head.appendChild(link)
     }, { passive: true })
-  },
-
-  // Entrada fluida nos blocos de conteúdo da página (igual ao CRM)
-  _pageEnter() {
-    const skip = new Set(['HEADER', 'NAV', 'SCRIPT', 'STYLE', 'LINK', 'META'])
-    const skipClass = ['bottom-nav', 'fab-cart', 'page-bar']
-    const blocks = [...document.body.children].filter(el =>
-      !skip.has(el.tagName) &&
-      !skipClass.some(c => el.classList.contains(c))
-    )
-    blocks.forEach((el, i) => {
-      el.style.animation = `pageEnterItem 0.22s ease both ${i * 55}ms`
-    })
   },
 
   // Transição suave apenas ao entrar no CRM
